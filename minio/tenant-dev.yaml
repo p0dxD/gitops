@@ -1,0 +1,55 @@
+apiVersion: minio.min.io/v2
+kind: Tenant
+metadata:
+  name: dev-storage
+  namespace: minio-tenant # Target namespace for the tenant deployment
+spec:
+  # The configuration for the MinIO cluster deployment (the "Tenant")
+  tenant:
+    name: dev-tenant # The name of the MinIO tenant/cluster
+    # Security: Enable automatic certificate generation for TLS
+    requestAutoCert: true
+    
+    # Image: Use a specific, stable MinIO release image
+    image:
+      repository: quay.io/minio/minio
+      tag: RELEASE.2024-10-18T22-09-54Z # Always use a fixed, recent release tag!
+      pullPolicy: IfNotPresent
+      
+    # Security: A secret containing root user/password must be provided
+    # The Operator will read the 'MINIO_ROOT_USER' and 'MINIO_ROOT_PASSWORD' keys
+    configuration:
+      name: minio-root-secret
+      
+    # Cluster Topology: Define the storage pools
+    pools:
+      - name: pool-0
+        servers: 4 # Number of MinIO server Pods
+        volumesPerServer: 4 # Number of Persistent Volumes (PVs) attached to each Pod
+        size: 100Gi # Capacity requested for *each* Persistent Volume Claim (PVC)
+        
+        # StorageClass: Must be a StorageClass that supports `volumeBindingMode: WaitForFirstConsumer`
+        storageClassName: longhorn # <--- CHANGE THIS to your actual StorageClass name
+        
+        # Resources: Resource requests/limits for each server Pod
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "500m"
+          limits:
+            cpu: "200m"
+            memory: "1Gi"
+
+# The Secret must exist in the 'minio-tenant-prod' namespace before the Tenant is synced.
+# Argo CD can deploy this secret as part of the same Application if it's in the same Git path.
+
+# Example Secret (minio-root-secret.yaml) - DO NOT STORE IN PLAIN TEXT GIT IF UNENCRYPTED
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: minio-root-secret
+#   namespace: minio-tenant-prod
+# stringData:
+#   MINIO_ROOT_USER: "minio-admin"
+#   MINIO_ROOT_PASSWORD: "a-strong-password"
+# type: Opaque
