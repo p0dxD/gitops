@@ -13,7 +13,7 @@ spec:
     # Image: Use a specific, stable MinIO release image
     image:
       repository: quay.io/minio/minio
-      tag: RELEASE.2024-10-18T22-09-54Z # Always use a fixed, recent release tag!
+      tag: RELEASE.2025-09-07T16-13-09Z-cpuv1 # Always use a fixed, recent release tag!
       pullPolicy: IfNotPresent
       
     # Security: A secret containing root user/password must be provided
