@@ -1,0 +1,7 @@
+# This file is used by Argo CD when syncing the 'minio-config/dev-storage' path.
+# It ensures all required manifests in this directory are applied.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- tenant.yaml
+- minio-root-secret.yaml
