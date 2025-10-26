@@ -4,7 +4,6 @@ metadata:
   name: dev-storage
   namespace: minio-tenant
 spec:
-  name: dev-tenant
   requestAutoCert: true
   
   # Image: Use a specific, stable MinIO release image (as provided by user)
