@@ -13,17 +13,8 @@ spec:
   exposeServices:
     console: true
     minio: true
-  env:
-    - name: MINIO_ROOT_USER
-      valueFrom:
-        secretKeyRef:
-          name: minio-root-secret
-          key: accesskey
-    - name: MINIO_ROOT_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: minio-root-secret
-          key: secretKey
+  credsSecret:
+    name: "minio-root-secret"
     
   # Cluster Topology: Adjusted for Raspberry Pi / low-resource cluster
   pools:
