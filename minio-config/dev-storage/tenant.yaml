@@ -1,39 +1,38 @@
-apiVersion: minio.min.io/v2
+apiVersion: min.io/v2
 kind: Tenant
 metadata:
   name: dev-storage
   namespace: minio-tenant
 spec:
-  tenant:
-    name: dev-tenant
-    requestAutoCert: true
+  name: dev-tenant
+  requestAutoCert: true
+  
+  # Image: Use a specific, stable MinIO release image (as provided by user)
+  image:
+    repository: quay.io/minio/minio
+    tag: RELEASE.2025-09-07T16-13-09Z-cpuv1 # Fixed tag for GitOps stability
+    pullPolicy: IfNotPresent
     
-    # Image: Use a specific, stable MinIO release image (as provided by user)
-    image:
-      repository: quay.io/minio/minio
-      tag: RELEASE.2025-09-07T16-13-09Z-cpuv1 # Fixed tag for GitOps stability
-      pullPolicy: IfNotPresent
+  # Security: Secret must exist in the 'minio-tenant' namespace
+  configuration:
+    name: minio-root-secret
+    
+  # Cluster Topology: Adjusted for Raspberry Pi / low-resource cluster
+  pools:
+    - name: pool-0
+      servers: 2 # Reduced from 4 to 2 servers for Pi cluster
+      volumesPerServer: 2 # 2 PVs attached to each Pod (4 total PVs)
+      size: 5Gi # Reduced PVC size (5Gi instead of 100Gi) for test environments
       
-    # Security: Secret must exist in the 'minio-tenant' namespace
-    configuration:
-      name: minio-root-secret
+      # StorageClass: Must be a StorageClass that supports `volumeBindingMode: WaitForFirstConsumer`
+      storageClassName: longhorn # Assumes you are using Longhorn or similar on Pi
       
-    # Cluster Topology: Adjusted for Raspberry Pi / low-resource cluster
-    pools:
-      - name: pool-0
-        servers: 2 # Reduced from 4 to 2 servers for Pi cluster
-        volumesPerServer: 2 # 2 PVs attached to each Pod (4 total PVs)
-        size: 5Gi # Reduced PVC size (5Gi instead of 100Gi) for test environments
-        
-        # StorageClass: Must be a StorageClass that supports `volumeBindingMode: WaitForFirstConsumer`
-        storageClassName: longhorn # Assumes you are using Longhorn or similar on Pi
-        
-        # Resources: Resource requests/limits for each server Pod - suitable for Pi 
-        # (e.g., in a 4GB or 8GB RAM cluster)
-        resources:
-          requests:
-            cpu: "50m" # Minimal CPU request
-            memory: "256Mi"
-          limits:
-            cpu: "100m"
-            memory: "512Mi" # Setting a reasonable memory limit
+      # Resources: Resource requests/limits for each server Pod - suitable for Pi 
+      # (e.g., in a 4GB or 8GB RAM cluster)
+      resources:
+        requests:
+          cpu: "50m" # Minimal CPU request
+          memory: "256Mi"
+        limits:
+          cpu: "100m"
+          memory: "512Mi" # Setting a reasonable memory limit
