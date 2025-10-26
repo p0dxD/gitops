@@ -11,7 +11,7 @@ spec:
   image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z-cpuv1
     
   # Security: Secret must exist in the 'minio-tenant' namespace
-  configuration:
+  credsSecret:
     name: minio-root-secret
     
   # Cluster Topology: Adjusted for Raspberry Pi / low-resource cluster
