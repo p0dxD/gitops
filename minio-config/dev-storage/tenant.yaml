@@ -1,4 +1,4 @@
-apiVersion: minio.minio/v2
+apiVersion: minio.min.io/v2
 kind: Tenant
 metadata:
   name: dev-storage
