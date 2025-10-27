@@ -20,14 +20,17 @@ spec:
     - name: "dev-pool"
       servers: 4 # Standard HA deployment uses 4+ servers
       volumeClaimTemplate:
-        metadata:
-          name: minio-data-prod
+        apiVersion: v1
+        kind: persistentvolumeclaims
+        metadata: { }
         spec:
-          storageClassName: longhorn
+          accessModes:
+            - ReadWriteOnce
           resources:
             requests:
-              storage: 100Gi # Much larger storage requests
-          selector: {}
+              storage: 100Gi
+          storageClassName: longhorn
+        status: { }
       volumesPerServer: 2
       # Resources: Resource requests/limits for each server Pod - suitable for Pi 
       # (e.g., in a 4GB or 8GB RAM cluster)
