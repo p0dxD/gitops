@@ -12,8 +12,8 @@ spec:
   exposeServices:
     console: true
     minio: true
-  credsSecret:
-    name: "minio-root-secret"
+  configuration:
+    name: storage-configuration
     
   # Cluster Topology: Adjusted for Raspberry Pi / low-resource cluster
   pools:
