@@ -18,7 +18,7 @@ spec:
   # Cluster Topology: Adjusted for Raspberry Pi / low-resource cluster
   pools:
     - name: "dev-pool"
-      servers: 4 # Standard HA deployment uses 4+ servers
+      servers: 3 # Standard HA deployment uses 4+ servers
       volumeClaimTemplate:
         apiVersion: v1
         kind: persistentvolumeclaims
@@ -29,7 +29,7 @@ spec:
           resources:
             requests:
               storage: 100Gi
-          storageClassName: longhorn
+          storageClassName: longhorn-topology
         status: { }
       volumesPerServer: 2
       # Resources: Resource requests/limits for each server Pod - suitable for Pi 
