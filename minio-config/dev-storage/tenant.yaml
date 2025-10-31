@@ -29,7 +29,7 @@ spec:
           resources:
             requests:
               storage: 20Gi
-          storageClassName: longhorn-topology
+          storageClassName: longhorn
         status: { }
       volumesPerServer: 2
       # Resources: Resource requests/limits for each server Pod - suitable for Pi 
