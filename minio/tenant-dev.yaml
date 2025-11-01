@@ -29,7 +29,7 @@ spec:
         size: 100Gi # Capacity requested for *each* Persistent Volume Claim (PVC)
         
         # StorageClass: Must be a StorageClass that supports `volumeBindingMode: WaitForFirstConsumer`
-        storageClassName: longhorn # <--- CHANGE THIS to your actual StorageClass name
+        storageClassName: longhorn-csi-new # <--- CHANGE THIS to your actual StorageClass name
         
         # Resources: Resource requests/limits for each server Pod
         resources:
