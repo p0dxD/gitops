@@ -36,8 +36,8 @@ spec:
       # (e.g., in a 4GB or 8GB RAM cluster)
       resources:
         requests:
-          cpu: "50m" # Minimal CPU request
-          memory: "256Mi"
+          cpu: "300m"   # Increased from 50m
+          memory: "512Mi" # Increased from 256Mi
         limits:
-          cpu: "100m"
-          memory: "512Mi" # Setting a reasonable memory limit
+          cpu: "1000m"  # Allow hitting a full core during heavy I/O
+          memory: "1Gi"   # 1GB limit prevents OOM during big layer pushes
