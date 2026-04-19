@@ -30,6 +30,16 @@ spec:
               value: /var/lib/postgresql/data/pgdata
           ports:
             - containerPort: 5432
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "umami"]
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "umami"]
+            initialDelaySeconds: 30
+            periodSeconds: 30
           volumeMounts:
             - name: postgres-data
               mountPath: /var/lib/postgresql/data
