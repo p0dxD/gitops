@@ -34,10 +34,19 @@ spec:
       volumesPerServer: 2
       # Resources: Resource requests/limits for each server Pod - suitable for Pi 
       # (e.g., in a 4GB or 8GB RAM cluster)
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: minio
+                topologyKey: kubernetes.io/hostname
       resources:
         requests:
-          cpu: "300m"   # Increased from 50m
-          memory: "512Mi" # Increased from 256Mi
+          cpu: "200m"
+          memory: "512Mi"
         limits:
-          cpu: "1000m"  # Allow hitting a full core during heavy I/O
-          memory: "1Gi"   # 1GB limit prevents OOM during big layer pushes
+          cpu: "500m"
+          memory: "768Mi"
