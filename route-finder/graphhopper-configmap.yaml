@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: graphhopper-config
+  namespace: route-finder
+data:
+  config.yml: |
+    graphhopper:
+      datareader.file: /data/maryland_virginia_dc.osm.pbf
+      graph.location: /data/gh-cache
+
+      profiles:
+        - name: shortest_car
+          vehicle: car
+          weighting: shortest
+          turn_costs: false
+
+      # CH disabled so alternative_route algorithm works
+      ch.profiles: []
+
+      # Landmark-based speedup without CH
+      lm.profiles:
+        - profile: shortest_car
+
+    server:
+      application_connectors:
+        - type: http
+          port: 8989
+          bind_host: 0.0.0.0
+      admin_connectors:
+        - type: http
+          port: 8990
+          bind_host: 0.0.0.0
+      request_log:
+        appenders: []

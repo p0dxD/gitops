@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - graphhopper-secret.yaml
+  - graphhopper-pvc.yaml
+  - graphhopper-configmap.yaml
+  - graphhopper-deployment.yaml
+  - graphhopper-service.yaml
+  - ui-deployment.yaml
+  - ui-service.yaml

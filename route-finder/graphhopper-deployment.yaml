@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: graphhopper
+  namespace: route-finder
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: graphhopper
+  template:
+    metadata:
+      labels:
+        app: graphhopper
+    spec:
+      initContainers:
+        - name: download-osm
+          image: minio/mc:latest
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              if [ -f /data/maryland_virginia_dc.osm.pbf ]; then
+                echo "OSM file already present, skipping download"
+                exit 0
+              fi
+              mc alias set myminio https://minio.minio-tenant.svc.cluster.local "$MINIO_USER" "$MINIO_PASS" --insecure
+              mc cp myminio/maps/maryland_virginia_dc.osm.pbf /data/maryland_virginia_dc.osm.pbf
+              echo "Downloaded: $(du -h /data/maryland_virginia_dc.osm.pbf | cut -f1)"
+          env:
+            - name: MINIO_USER
+              valueFrom:
+                secretKeyRef:
+                  name: minio-credentials
+                  key: user
+            - name: MINIO_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: minio-credentials
+                  key: password
+          volumeMounts:
+            - name: graph-data
+              mountPath: /data
+      containers:
+        - name: graphhopper
+          image: graphhopper/graphhopper:10
+          command: ["java", "-Xmx1500m", "-Xms512m", "-Xss4m", "-jar", "graphhopper-web.jar", "server", "/graphhopper/config.yml"]
+          ports:
+            - containerPort: 8989
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "2000m"
+              memory: "2Gi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8989
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            failureThreshold: 40
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8989
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            failureThreshold: 5
+          volumeMounts:
+            - name: graph-data
+              mountPath: /data
+            - name: config
+              mountPath: /graphhopper/config.yml
+              subPath: config.yml
+      volumes:
+        - name: graph-data
+          persistentVolumeClaim:
+            claimName: graphhopper-data
+        - name: config
+          configMap:
+            name: graphhopper-config
