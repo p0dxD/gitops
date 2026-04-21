@@ -9,18 +9,19 @@ data:
       datareader.file: /data/maryland_virginia_dc.osm.pbf
       graph.location: /data/gh-cache
 
+      import.osm.ignored_highways: ''
+      graph.encoded_values: car_access, road_environment, ferry_speed, car_average_speed, max_speed
+
       profiles:
-        - name: shortest_car
-          vehicle: car
-          weighting: shortest
-          turn_costs: false
+        - name: car
+          custom_model_files: [car.json]
 
       # CH disabled so alternative_route algorithm works
-      ch.profiles: []
+      profiles_ch: []
 
       # Landmark-based speedup without CH
-      lm.profiles:
-        - profile: shortest_car
+      profiles_lm:
+        - profile: car
 
     server:
       application_connectors:

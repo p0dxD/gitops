@@ -5,6 +5,8 @@ metadata:
   namespace: route-finder
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: graphhopper
@@ -42,8 +44,8 @@ spec:
               mountPath: /data
       containers:
         - name: graphhopper
-          image: graphhopper/graphhopper:10
-          command: ["java", "-Xmx1500m", "-Xms512m", "-Xss4m", "-jar", "graphhopper-web.jar", "server", "/graphhopper/config.yml"]
+          image: registry.cube.local:5000/graphhopper:12.0
+          command: ["java", "-Xmx1500m", "-Xms512m", "-Xss4m", "-jar", "/graphhopper/graphhopper-web-12.0-SNAPSHOT.jar", "server", "/graphhopper/config.yml"]
           ports:
             - containerPort: 8989
           resources:
