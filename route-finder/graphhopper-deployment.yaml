@@ -45,30 +45,34 @@ spec:
       containers:
         - name: graphhopper
           image: registry.cube.local:5000/graphhopper:12.0
-          command: ["java", "-Xmx1500m", "-Xms512m", "-Xss4m", "-jar", "/graphhopper/graphhopper-web-12.0-SNAPSHOT.jar", "server", "/graphhopper/config.yml"]
+          command: ["java", "-Xmx4g", "-Xms1g", "-Xss4m", "-jar", "/graphhopper/graphhopper-web-12.0-SNAPSHOT.jar", "server", "/graphhopper/config.yml"]
           ports:
             - containerPort: 8989
           resources:
             requests:
               cpu: "500m"
-              memory: "1Gi"
+              memory: "2Gi"
             limits:
               cpu: "2000m"
-              memory: "2Gi"
+              memory: "5Gi"
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8989
+            failureThreshold: 60
+            periodSeconds: 30
           readinessProbe:
             httpGet:
               path: /health
               port: 8989
-            initialDelaySeconds: 30
             periodSeconds: 15
-            failureThreshold: 40
+            failureThreshold: 3
           livenessProbe:
             httpGet:
               path: /health
               port: 8989
-            initialDelaySeconds: 120
             periodSeconds: 30
-            failureThreshold: 5
+            failureThreshold: 3
           volumeMounts:
             - name: graph-data
               mountPath: /data
