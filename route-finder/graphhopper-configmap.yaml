@@ -10,11 +10,13 @@ data:
       graph.location: /data/gh-cache
 
       import.osm.ignored_highways: ''
-      graph.encoded_values: car_access, road_environment, ferry_speed, car_average_speed, max_speed
+      graph.encoded_values: car_access, road_environment, ferry_speed, car_average_speed, max_speed, foot_access, foot_average_speed, foot_priority, hike_rating, foot_road_access, mtb_rating
 
       profiles:
         - name: car
           custom_model_files: [car.json]
+        - name: foot
+          custom_model_files: [foot.json]
 
       # CH disabled so alternative_route algorithm works
       profiles_ch: []
@@ -22,6 +24,7 @@ data:
       # Landmark-based speedup without CH
       profiles_lm:
         - profile: car
+        - profile: foot
 
     server:
       application_connectors:
