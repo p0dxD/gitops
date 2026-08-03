@@ -1,0 +1,14 @@
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: backup-postgres
+  namespace: longhorn-system
+spec:
+  cron: "0 3 * * *"
+  task: "backup"
+  groups:
+    - backup-postgres
+  retain: 7
+  concurrency: 2
+  labels:
+    job: backup-postgres
