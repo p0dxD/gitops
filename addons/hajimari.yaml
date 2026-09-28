@@ -1,0 +1,55 @@
+# rendimiento add-on. Edit here or on the Add-ons page; pushes to the default branch sync it.
+name: hajimari
+title: Hajimari
+category: web
+description: Start page listing the cluster's apps.
+namespace: hajimari
+createNamespace: true
+helm:
+  repo: https://hajimari.io
+  chart: hajimari
+  version: 2.0.2
+# Same release name as the ArgoCD app, so rendered labels are identical.
+releaseName: hajimari
+# Taken over from the ArgoCD app "hajimari" with its values unchanged.
+adopt: true
+prune: true
+values:
+  hajimari:
+    title: Home Lab
+    defaultEnable: true
+    namespaceSelector:
+      any: true
+      matchNames: []
+    customApps:
+    - group: Applications
+      apps:
+      - name: JobSentry
+        url: https://jobsentry.net
+        icon: shield-search
+      - name: Wellness Portal
+        url: https://wellbeingportal.app
+        icon: heart-pulse
+      - name: Grafana
+        url: https://dashboard.joserod.space
+        icon: chart-line
+    - group: Infrastructure
+      apps:
+      - name: Jenkins
+        url: http://192.168.50.89:8080
+        icon: pipe-wrench
+      - name: ArgoCD
+        url: http://192.168.50.74:8081
+        icon: cog-transfer
+      - name: Longhorn
+        url: http://192.168.50.73:8082
+        icon: harddisk
+      - name: MinIO
+        url: https://192.168.50.72:9443
+        icon: database
+      - name: Prometheus
+        url: http://192.168.50.90:9090
+        icon: fire
+      - name: Registry
+        url: http://192.168.50.80:5000/v2/_catalog
+        icon: docker
