@@ -11,7 +11,8 @@ helm:
   version: 2.0.2
 # Same release name as the ArgoCD app, so rendered labels are identical.
 releaseName: hajimari
-# Taken over from the ArgoCD app "hajimari" with its values unchanged.
+# Taken over from the ArgoCD app "hajimari"; Jenkins and ArgoCD are retired,
+# so their links were replaced by rendimiento's.
 adopt: true
 prune: true
 values:
@@ -35,12 +36,9 @@ values:
         icon: chart-line
     - group: Infrastructure
       apps:
-      - name: Jenkins
-        url: http://192.168.50.89:8080
-        icon: pipe-wrench
-      - name: ArgoCD
-        url: http://192.168.50.74:8081
-        icon: cog-transfer
+      - name: rendimiento
+        url: https://rendimiento.joserod.space
+        icon: rocket-launch
       - name: Longhorn
         url: http://192.168.50.73:8082
         icon: harddisk
