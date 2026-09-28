@@ -1,0 +1,12 @@
+# rendimiento add-on. Edit here or on the Add-ons page; pushes to the default branch sync it.
+name: buildkit
+title: BuildKit pool
+category: devtools
+description: The image builders rendimiento's CI uses, one per worker node.
+namespace: devops-tools
+git:
+  path: buildkit
+# Takes over the existing "buildkitd" Service unchanged; the StatefulSet,
+# the pool Service and its config are new.
+adopt: true
+prune: true

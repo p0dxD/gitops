@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: buildkitd-pool-config
+data:
+  buildkitd.toml: |
+    [registry."registry.cube.local:5000"]
+      http = true
+      insecure = true
+
+    [worker.oci]
+      gc = true
+      # Keep each node's cache under ~15 GB (the cache volume is 25Gi).
+      gckeepstorage = 15000

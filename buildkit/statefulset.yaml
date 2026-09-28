@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: buildkitd
+spec:
+  serviceName: buildkitd-pool
+  replicas: 4
+  podManagementPolicy: Parallel
+  selector:
+    matchLabels: { app: buildkitd, pool: "true" }
+  template:
+    metadata:
+      # app=buildkitd is what the build namespace's NetworkPolicy allows.
+      labels: { app: buildkitd, pool: "true" }
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  # Not the control plane, not the Jetson (GPU, no NetworkPolicy).
+                  - { key: kubernetes.io/hostname, operator: NotIn, values: [main, podoi-ai] }
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels: { app: buildkitd, pool: "true" }
+      containers:
+        - name: buildkitd
+          image: moby/buildkit:v0.18.2
+          args: [--addr, "unix:///run/buildkit/buildkitd.sock", --addr, "tcp://0.0.0.0:1234", --config, /etc/buildkit/buildkitd.toml]
+          securityContext: { privileged: true }
+          ports: [{ containerPort: 1234, protocol: TCP }]
+          readinessProbe:
+            exec: { command: [buildctl, debug, workers] }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            requests: { cpu: 250m, memory: 512Mi }
+            limits: { cpu: "3", memory: 3Gi }
+          volumeMounts:
+            - { name: cache, mountPath: /var/lib/buildkit }
+            - { name: config, mountPath: /etc/buildkit }
+      volumes:
+        - name: config
+          configMap: { name: buildkitd-pool-config }
+  volumeClaimTemplates:
+    - metadata: { name: cache }
+      spec:
+        accessModes: [ReadWriteOnce]
+        storageClassName: local-path
+        resources: { requests: { storage: 25Gi } }

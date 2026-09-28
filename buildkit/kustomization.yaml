@@ -1,0 +1,11 @@
+# The image builders rendimiento's CI uses: one BuildKit daemon per worker,
+# each with a node-local cache. rendimiento picks a daemon per build by
+# hashing the image name, so a service keeps building on the same warm cache
+# while different services build on different nodes in parallel.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: devops-tools
+resources:
+  - config.yaml
+  - services.yaml
+  - statefulset.yaml

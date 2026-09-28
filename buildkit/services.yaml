@@ -1,0 +1,23 @@
+# buildkitd: the single address older tools use (e.g. `make image` port-
+# forwards it); it reaches any daemon of the pool.
+apiVersion: v1
+kind: Service
+metadata:
+  name: buildkitd
+spec:
+  type: ClusterIP
+  selector: { app: buildkitd }
+  ports:
+    - { port: 1234, protocol: TCP, targetPort: 1234 }
+---
+# buildkitd-pool: headless, for discovery. Its SRV records list only the
+# daemons that are ready (_buildkit._tcp.buildkitd-pool.devops-tools...).
+apiVersion: v1
+kind: Service
+metadata:
+  name: buildkitd-pool
+spec:
+  clusterIP: None
+  selector: { app: buildkitd, pool: "true" }
+  ports:
+    - { name: buildkit, port: 1234, protocol: TCP, targetPort: 1234 }
