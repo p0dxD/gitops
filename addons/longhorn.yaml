@@ -1,0 +1,23 @@
+# rendimiento add-on. Edit here or on the Add-ons page; pushes to the default branch sync it.
+name: longhorn
+title: Longhorn
+category: storage
+description: Replicated block storage behind every volume in the cluster.
+namespace: longhorn-system
+createNamespace: true
+helm:
+  repo: https://charts.longhorn.io/
+  chart: longhorn
+  version: v1.10.2
+# Same release name as the ArgoCD app, so rendered labels are identical.
+releaseName: longhorn
+values:
+  preUpgradeChecker:
+    jobEnabled: false
+# Taken over from the ArgoCD app "longhorn": the first sync only proceeds if
+# it would change nothing that is running.
+adopt: true
+# Storage is critical: like the ArgoCD app, changes wait for a manual sync
+# after reviewing the preview, and nothing is ever pruned automatically.
+manualSync: true
+prune: false
