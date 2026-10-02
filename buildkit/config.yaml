@@ -10,5 +10,10 @@ data:
 
     [worker.oci]
       gc = true
-      # Keep each node's cache under ~15 GB (the cache volume is 25Gi).
-      gckeepstorage = 15000
+      # Units matter: BuildKit >= 0.17 reads a bare number as bytes (the old
+      # gckeepstorage = 15000 meant 15 kB, so every build re-downloaded its
+      # base images and cached layers). Each node's cache volume is 25Gi and
+      # shares the node's disk.
+      reservedSpace = "5GB"   # always keep at least this much cache
+      maxUsedSpace = "15GB"   # never use more than this
+      minFreeSpace = "15%"    # and always leave this much of the disk free
