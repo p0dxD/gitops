@@ -1,0 +1,25 @@
+# Garage: S3-compatible object storage for Longhorn's backups and
+# rendimiento's log archive. One node, so one copy of each object; the data
+# sits on a Longhorn volume, which keeps its own replicas.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: garage-config
+  namespace: garage
+data:
+  garage.toml: |
+    metadata_dir = "/var/lib/garage/meta"
+    data_dir = "/var/lib/garage/data"
+    db_engine = "sqlite"
+    replication_factor = 1
+    rpc_bind_addr = "[::]:3901"
+    rpc_public_addr = "127.0.0.1:3901"
+
+    [s3_api]
+    # Longhorn's backup target names this region.
+    s3_region = "us-east-1"
+    api_bind_addr = "[::]:3900"
+    root_domain = ".s3.garage.local"
+
+    [admin]
+    api_bind_addr = "[::]:3903"

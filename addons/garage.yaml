@@ -1,0 +1,9 @@
+# rendimiento add-on. Edit here or on the Add-ons page; pushes to the default branch sync it.
+name: garage
+title: Garage
+category: storage
+description: S3-compatible object storage for Longhorn's backups and rendimiento's log archive.
+namespace: garage
+git:
+  path: garage
+prune: true
