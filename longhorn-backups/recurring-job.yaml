@@ -12,3 +12,21 @@ spec:
   concurrency: 2
   labels:
     job: backup-postgres
+---
+# Everything else worth keeping: app volumes (rendimiento labels them through
+# VOLUME_LABELS), the platform's database, Grafana, small app data. Not the
+# image registry (rebuildable), metrics, or Garage itself (it is the target).
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: backup-nightly
+  namespace: longhorn-system
+spec:
+  cron: "30 3 * * *"
+  task: "backup"
+  groups:
+    - backup-nightly
+  retain: 7
+  concurrency: 2
+  labels:
+    job: backup-nightly

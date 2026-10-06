@@ -2,7 +2,7 @@
 name: longhorn-backups
 title: Longhorn backups
 category: storage
-description: Longhorn's backup target (Garage, in the garage namespace) and the nightly Postgres volume backups.
+description: Longhorn's backup target (Garage, in the garage namespace), the nightly Postgres volume backups, and the nightly backups of every other volume worth keeping.
 namespace: longhorn-system
 git:
   path: longhorn-backups
