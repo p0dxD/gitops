@@ -1,0 +1,99 @@
+# rendimiento add-on. Edit here or on the Add-ons page; pushes to the default branch sync it.
+category: monitoring
+createNamespace: true
+description: 'Receives traces from apps with `observe` y turns them into the service
+  graph: calls per minute, errors y latency en every line of the Universe map.'
+helm:
+  chart: opentelemetry-collector
+  repo: https://open-telemetry.github.io/opentelemetry-helm-charts
+  version: 0.175.1
+name: opentelemetry-collector
+namespace: observa
+prune: true
+title: OpenTelemetry Collector
+values:
+  config:
+    connectors:
+      servicegraph:
+        latency_histogram_buckets:
+        - 5ms
+        - 10ms
+        - 25ms
+        - 50ms
+        - 100ms
+        - 250ms
+        - 500ms
+        - 1s
+        - 2500ms
+        - 5s
+        - 10s
+        store:
+          max_items: 5000
+          ttl: 10s
+        virtual_node_peer_attributes:
+        - peer.service
+        - db.system
+        - db.name
+        - server.address
+        - net.peer.name
+      spanmetrics:
+        histogram:
+          explicit:
+            buckets:
+            - 5ms
+            - 10ms
+            - 25ms
+            - 50ms
+            - 100ms
+            - 250ms
+            - 500ms
+            - 1s
+            - 2500ms
+            - 5s
+            - 10s
+    exporters:
+      prometheusremotewrite:
+        endpoint: http://vmsingle-vm-stack-victoria-metrics-k8s-stack.monitoring.svc.cluster.local:8428/api/v1/write
+    receivers:
+      jaeger: null
+      prometheus: null
+    service:
+      pipelines:
+        logs: null
+        metrics:
+          exporters:
+          - prometheusremotewrite
+          processors:
+          - memory_limiter
+          - batch
+          receivers:
+          - servicegraph
+          - spanmetrics
+        traces:
+          exporters:
+          - servicegraph
+          - spanmetrics
+          processors:
+          - memory_limiter
+          - batch
+          receivers:
+          - otlp
+          - zipkin
+  image:
+    repository: otel/opentelemetry-collector-contrib
+  mode: deployment
+  ports:
+    jaeger-compact:
+      enabled: false
+    jaeger-grpc:
+      enabled: false
+    jaeger-thrift:
+      enabled: false
+    zipkin:
+      enabled: true
+  resources:
+    limits:
+      memory: 400Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
