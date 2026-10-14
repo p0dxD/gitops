@@ -1,8 +1,9 @@
 # rendimiento add-on. Edit here or on the Add-ons page; pushes to the default branch sync it.
 category: monitoring
 createNamespace: true
-description: 'Receives traces from apps with `observe` y turns them into the service
-  graph: calls per minute, errors y latency en every line of the Universe map.'
+description: 'Recibe las trazas de las aplicaciones con `observe` y las convierte en
+  el grafo de servicios: llamadas por minuto, errores y latencia en cada línea del
+  mapa del Universo.'
 helm:
   chart: opentelemetry-collector
   repo: https://open-telemetry.github.io/opentelemetry-helm-charts
@@ -51,6 +52,15 @@ values:
             - 2500ms
             - 5s
             - 10s
+    processors:
+      # Health checks (Kubernetes' probes, rendimiento's uptime checks) are
+      # not traffic: without this every service gets a line from Internet.
+      filter/health:
+        error_mode: ignore
+        traces:
+          span:
+          - IsMatch(attributes["user_agent.original"], "^(kube-probe|rendimiento-uptime)/")
+          - IsMatch(attributes["http.user_agent"], "^(kube-probe|rendimiento-uptime)/")
     exporters:
       prometheusremotewrite:
         endpoint: http://vmsingle-vm-stack-victoria-metrics-k8s-stack.monitoring.svc.cluster.local:8428/api/v1/write
@@ -75,6 +85,7 @@ values:
           - spanmetrics
           processors:
           - memory_limiter
+          - filter/health
           - batch
           receivers:
           - otlp
