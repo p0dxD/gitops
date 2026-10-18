@@ -68,6 +68,15 @@ values:
     exporters:
       prometheusremotewrite:
         endpoint: http://vmsingle-vm-stack-victoria-metrics-k8s-stack.monitoring.svc.cluster.local:8428/api/v1/write
+      # Every span to rendimiento's traces service, which keeps whole
+      # requests (the failed, the slow, a sample) for the Universe's
+      # waterfall. When it is down, spans wait in a small queue and the
+      # metrics above keep flowing.
+      otlphttp/rendimiento:
+        endpoint: http://rendimiento-traces.rendimiento-system.svc.cluster.local:4318
+        compression: gzip
+        sending_queue:
+          queue_size: 2000
     receivers:
       jaeger: null
       prometheus: null
@@ -87,6 +96,7 @@ values:
           exporters:
           - servicegraph
           - spanmetrics
+          - otlphttp/rendimiento
           processors:
           - memory_limiter
           - filter/health
