@@ -4,8 +4,11 @@ metadata:
   name: buildkitd-pool-config
 data:
   buildkitd.toml: |
+    # The registry speaks only HTTPS (a self-signed certificate: insecure
+    # skips checking it). With http = true, a slow HTTPS answer made
+    # BuildKit retry over plain HTTP, which the registry refuses with
+    # "400 Bad Request" (run 1329 of rendimiento-ai, 2026-11-13).
     [registry."registry.cube.local:5000"]
-      http = true
       insecure = true
 
     [worker.oci]
