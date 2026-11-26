@@ -1,0 +1,55 @@
+# The pool's daemon on a node «a ratos» (decision 196 in rendimiento's Ruta):
+# p0dxD's desktop, amd64, on only when he turns it on. It tolerates the
+# node's taint and nothing else lands there. rendimiento builds no image's
+# main half on it (it is of the other architecture): only the amd64 half, at
+# the same time as the arm64 one, and then joins both in one image. While the
+# desktop is off its pod is not ready, so it leaves the pool's SRV records
+# and builds go on as before.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: buildkitd-a-ratos
+spec:
+  serviceName: buildkitd-pool
+  replicas: 1
+  podManagementPolicy: Parallel
+  selector:
+    matchLabels: { app: buildkitd, pool: "true", a-ratos: "true" }
+  template:
+    metadata:
+      # app=buildkitd is what the build namespace's NetworkPolicy allows; pool=true
+      # puts it in the pool's Service.
+      labels: { app: buildkitd, pool: "true", a-ratos: "true" }
+    spec:
+      nodeSelector:
+        rendimiento.ai/construye: "si"
+        kubernetes.io/arch: amd64
+      tolerations:
+        - { key: rendimiento.ai/a-ratos, operator: Exists, effect: NoSchedule }
+        # Off for a while is the normal state of this node: stay bound to it.
+        - { key: node.kubernetes.io/unreachable, operator: Exists, effect: NoExecute }
+        - { key: node.kubernetes.io/not-ready, operator: Exists, effect: NoExecute }
+      containers:
+        - name: buildkitd
+          image: moby/buildkit:v0.18.2
+          args: [--addr, "unix:///run/buildkit/buildkitd.sock", --addr, "tcp://0.0.0.0:1234", --config, /etc/buildkit/buildkitd.toml]
+          securityContext: { privileged: true }
+          ports: [{ containerPort: 1234, protocol: TCP }]
+          readinessProbe:
+            exec: { command: [buildctl, debug, workers] }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            requests: { cpu: 500m, memory: 1Gi }
+            limits: { cpu: "4", memory: 8Gi }
+          volumeMounts:
+            - { name: cache, mountPath: /var/lib/buildkit }
+            - { name: config, mountPath: /etc/buildkit }
+      volumes:
+        - name: config
+          configMap: { name: buildkitd-pool-config }
+        # A folder of the desktop's own disk: local-path's helper pod cannot
+        # land on a node with the taint, and the cache outlives each power-off.
+        - name: cache
+          hostPath: { path: /var/lib/rendimiento-buildkit, type: DirectoryOrCreate }
