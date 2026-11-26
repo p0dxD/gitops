@@ -9,3 +9,4 @@ resources:
   - config.yaml
   - services.yaml
   - statefulset.yaml
+  - statefulset-a-ratos.yaml
