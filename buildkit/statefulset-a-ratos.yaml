@@ -1,17 +1,19 @@
-# The pool's daemon on a node «a ratos» (decision 196 in rendimiento's Ruta):
-# p0dxD's desktop, amd64, on only when he turns it on. It tolerates the
-# node's taint and nothing else lands there. rendimiento builds no image's
+# The pool's daemons on the nodes «a ratos» (decision 196 in rendimiento's
+# Ruta): amd64 machines on only when someone turns them on, one daemon on
+# each. They tolerate the nodes' taint and nothing
+# else lands there. rendimiento builds no image's
 # main half on it (it is of the other architecture): only the amd64 half, at
 # the same time as the arm64 one, and then joins both in one image. While the
-# desktop is off its pod is not ready, so it leaves the pool's SRV records
-# and builds go on as before.
+# machine is off its pod is not ready, so it leaves the pool's SRV records
+# and builds go on with the other one, or as before. One replica per machine:
+# with one more machine, one more replica.
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: buildkitd-a-ratos
 spec:
   serviceName: buildkitd-pool
-  replicas: 1
+  replicas: 2
   podManagementPolicy: Parallel
   selector:
     matchLabels: { app: buildkitd, pool: "true", a-ratos: "true" }
@@ -24,6 +26,13 @@ spec:
       nodeSelector:
         rendimiento.ai/construye: "si"
         kubernetes.io/arch: amd64
+      # One per machine: each keeps its cache on its own disk (hostPath) and
+      # stays bound to its node while it is off.
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector: { matchLabels: { app: buildkitd, a-ratos: "true" } }
+              topologyKey: kubernetes.io/hostname
       tolerations:
         - { key: rendimiento.ai/a-ratos, operator: Exists, effect: NoSchedule }
         # Off for a while is the normal state of this node: stay bound to it.
